@@ -1,0 +1,648 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Developer {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String
+  companyName   String?
+  logoUrl       String?
+  website       String?
+  phone         String?
+  address       String?
+  isActive      Boolean   @default(true)
+  passwordHash  String?
+  refreshToken  String?
+  role          String    @default("developer")
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  projects      Project[]
+  questionnaires Questionnaire[]
+  ruleSets      RuleSet[]
+
+  @@index([email])
+  @@index([isActive])
+}
+
+model Project {
+  id            String    @id @default(cuid())
+  developerId   String
+  name          String
+  slug          String    @unique
+  description   String?
+  tagline       String?
+  logoUrl       String?
+  heroImageUrl  String?
+  address       String?
+  city          String?
+  state         String?
+  country       String?
+  pincode       String?
+  latitude      Float?
+  longitude     Float?
+  possessionDate DateTime?
+  isActive      Boolean   @default(true)
+  isPublished   Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  developer     Developer   @relation(fields: [developerId], references: [id], onDelete: Cascade)
+  config        ProjectConfig?
+  apartments    Apartment[]
+  buyers        Buyer[]
+  events        Event[]
+  leads         Lead[]
+  knowledgeBase KnowledgeBase[]
+  buyerSessions BuyerSession[]
+  decisionSnapshots DecisionSnapshot[]
+  questionnaires Questionnaire[]
+  plannerAnalytics PlannerAnalytics[]
+  plannerAnswers PlannerAnswer[]
+  ruleSets RuleSet[]
+
+  @@index([developerId])
+  @@index([slug])
+  @@index([isActive])
+  @@index([isPublished])
+}
+
+model ProjectConfig {
+  id                    String   @id @default(cuid())
+  projectId             String   @unique
+  primaryColor          String   @default("#0F1A3A")
+  secondaryColor        String   @default("#D4A843")
+  accentColor           String   @default("#FFFFFF")
+  fontFamily            String   @default("Inter")
+  logoUrl               String?
+  faviconUrl            String?
+  metaTitle             String?
+  metaDescription       String?
+  ogImageUrl            String?
+  googleAnalyticsId     String?
+  facebookPixelId       String?
+  hotjarId              String?
+  customCss             String?
+  customJs              String?
+  enablePlanner         Boolean  @default(true)
+  enableViewer          Boolean  @default(true)
+  enableFurniture       Boolean  @default(true)
+  enableAIAssistant     Boolean  @default(true)
+  enableBudgetWidget    Boolean  @default(true)
+  enableHistoryWidget   Boolean  @default(true)
+  enableRecommendations Boolean  @default(true)
+  enableWhatsApp        Boolean  @default(false)
+  whatsappNumber        String?
+  smtpConfig            Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+}
+
+model Apartment {
+  id            String   @id @default(cuid())
+  projectId     String
+  tower         String
+  floor         String
+  unitNumber    String
+  type          String
+  carpetArea    Float
+  price         Float
+  status        String   @default("available")
+  layoutKey     String?
+  facing        String?
+  images        String[]
+  floorPlanUrl  String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  buyerId       String?   @unique
+  buyer         Buyer?    @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  @@unique([projectId, tower, floor, unitNumber])
+  @@index([projectId])
+  @@index([status])
+  @@index([layoutKey])
+}
+
+model Buyer {
+  id              String   @id @default(cuid())
+  projectId       String
+  email           String
+  phone           String?
+  name            String?
+  familySize      String?
+  children        String?
+  workFromHome    String?
+  lifestyle       String?
+  timeline        String?
+  style           String?
+  budget          Float?
+  selectedLayout  String?
+  leadInfo        Json?
+  dnaProfile      Json?
+  preferences     Json?
+  lastActiveAt    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  project         Project        @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  apartmentId     String?        @unique
+  apartment       Apartment?
+  events          Event[]
+  leads           Lead[]
+  sessions        BuyerSession[]
+  decisionSnapshots DecisionSnapshot[]
+  plannerAnswers  PlannerAnswer[]
+
+  @@unique([projectId, email])
+  @@index([projectId])
+  @@index([email])
+  @@index([lastActiveAt])
+}
+
+model Lead {
+  id            String   @id @default(cuid())
+  projectId     String
+  buyerId       String?
+  name          String
+  phone         String
+  email         String
+  intent        String
+  source        String?
+  status        String   @default("new")
+  score         Int      @default(0)
+  assignedTo    String?
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  buyer         Buyer?   @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([email])
+  @@index([phone])
+}
+
+model Event {
+  id            String   @id @default(cuid())
+  projectId     String
+  buyerId       String?
+  sessionId     String?
+  name          String
+  properties    Json?
+  timestamp     DateTime @default(now())
+  userAgent     String?
+  ipAddress     String?
+  referrer      String?
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  buyer         Buyer?   @relation(fields: [buyerId], references: [id], onDelete: SetNull)
+
+  @@index([projectId])
+  @@index([buyerId])
+  @@index([sessionId])
+  @@index([name])
+  @@index([timestamp])
+}
+
+model BuyerSession {
+  id                String   @id @default(cuid())
+  buyerId           String
+  projectId         String
+  accessTokenId     String   @unique
+  refreshTokenHash  String
+  expiresAt         DateTime
+  lastSeenAt        DateTime @default(now())
+  deviceInfo        String?
+  ipAddress         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  buyer             Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  plannerAnswers    PlannerAnswer[]
+
+  @@index([buyerId])
+  @@index([projectId])
+  @@index([accessTokenId])
+  @@index([expiresAt])
+}
+
+model DecisionSnapshot {
+  id                    String   @id @default(cuid())
+  buyerId               String
+  projectId             String
+  sessionId             String?
+  plannerVersion        String   @default("1.0")
+  questionnaireVersion  String   @default("1.0")
+  normalizationVersion  String   @default("1.0")
+  decisionEngineVersion String   @default("1.0")
+  generatedAt           DateTime @default(now())
+  facts                 Json
+  attributes            Json
+  priorityScores        Json
+  constraints           Json
+  metadata              Json?
+  ruleExecutionLog      Json?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  buyer                 Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  evaluations           DecisionEvaluation[]
+  behaviourDimensions   BehaviourDimension[]
+
+  @@index([buyerId])
+  @@index([projectId])
+  @@index([sessionId])
+}
+
+model DecisionEvaluation {
+  id                String   @id @default(cuid())
+  snapshotId        String
+  facts             Json
+  attributes        Json
+  priorityScores    Json
+  constraints       Json
+  evaluatedAt       DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  snapshot          DecisionSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+  explanations      DecisionExplanation[]
+
+  @@index([snapshotId])
+}
+
+model BehaviourDimension {
+  id                String   @id @default(cuid())
+  snapshotId        String
+  dimension         String   // privacy, hosting, luxury, comfort, maintenance, futurePlanning, wellness, technology, family
+  score             Float    // 0-100
+  confidence        Float    // 0-1
+  sourceFacts       String[] // fact keys that contributed
+  triggeringRules   String[] // rule IDs that contributed
+  reasoning         String
+  createdAt         DateTime @default(now())
+
+  snapshot          DecisionSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@index([snapshotId])
+  @@index([dimension])
+  @@unique([snapshotId, dimension])
+}
+
+model DecisionExplanation {
+  id                String   @id @default(cuid())
+  evaluationId      String
+  outputType        String   // fact, attribute, priority, constraint, behaviour
+  outputKey         String
+  source            String   // planner.answers.x, derived, RULE_X, default
+  confidence        Float
+  reasoning         String
+  triggeringRules   String[]
+  contributingFacts String[]
+  createdAt         DateTime @default(now())
+
+  evaluation        DecisionEvaluation @relation(fields: [evaluationId], references: [id], onDelete: Cascade)
+
+  @@index([evaluationId])
+  @@index([outputType])
+  @@index([outputKey])
+}
+
+model Questionnaire {
+  id                String   @id @default(cuid())
+  developerId       String?
+  projectId         String?
+  version           String   @default("1.0")
+  name              String
+  description       String?
+  isActive          Boolean  @default(true)
+  isDefault         Boolean  @default(false)
+  mandatoryCount    Int      @default(6)
+  maxQuestions      Int      @default(15)
+  avgCompletionSecs Int      @default(75)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  developer         Developer?   @relation(fields: [developerId], references: [id], onDelete: SetNull)
+  project           Project?     @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  questions         Question[]
+  plannerAnswers    PlannerAnswer[]
+  plannerAnalytics  PlannerAnalytics[]
+
+  @@index([developerId])
+  @@index([projectId])
+  @@index([isActive])
+  @@unique([developerId, projectId, version])
+}
+
+model Question {
+  id                String   @id @default(cuid())
+  questionnaireId   String
+  key               String
+  label             String
+  type              String   // single, multi, slider, scale
+  category          String   // household, lifestyle, design, financial, investment, financial_behaviour
+  isMandatory       Boolean  @default(false)
+  order             Int
+  versionAdded      String   @default("1.0")
+  versionDeprecated String?
+  options           Json?    // for single/multi choice
+  minValue          Int?     // for slider
+  maxValue          Int?     // for slider
+  step              Int?     // for slider
+  unit              String?  // for slider (e.g., "L", "Cr")
+  dependsOn         Json?    // branching conditions: { questionKey: "household", operator: "in", value: ["Family", "Joint Family"] }
+  branchKey         String?  // identifies which branch this question belongs to
+  metadata          Json?    // additional config
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  questionnaire       Questionnaire  @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+  nextQuestions       Branch[]       @relation("NextQuestions")
+  previousQuestions   Branch[]       @relation("PreviousQuestions")
+
+  @@index([questionnaireId])
+  @@index([key])
+  @@index([category])
+  @@index([isMandatory])
+}
+
+model Branch {
+  id                String   @id @default(cuid())
+  fromQuestionId    String
+  toQuestionId      String
+  condition         Json     // { operator: "eq|in|gt|...", value: any }
+  branchType        String   // mandatory, adaptive, optional
+  priority          Int      @default(0)
+  createdAt         DateTime @default(now())
+
+  fromQuestion      Question @relation("NextQuestions", fields: [fromQuestionId], references: [id], onDelete: Cascade)
+  toQuestion        Question @relation("PreviousQuestions", fields: [toQuestionId], references: [id], onDelete: Cascade)
+
+  @@index([fromQuestionId])
+  @@index([toQuestionId])
+}
+
+model PlannerAnswer {
+  id                String   @id @default(cuid())
+  buyerId           String
+  projectId         String
+  sessionId         String?
+  questionnaireId   String
+  questionKey       String
+  value             Json
+  valueType         String   // string, number, boolean, array
+  isUnknown         Boolean  @default(false) // distinguishes UNKNOWN from FALSE
+  plannerVersion    String   @default("1.0")
+  questionnaireVersion String  @default("1.0")
+  branchPath        String?  // JSON path of branch taken
+  timeSpentMs       Int?
+  answeredAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  buyer             Buyer    @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  session           BuyerSession? @relation(fields: [sessionId], references: [id], onDelete: SetNull)
+  questionnaire     Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+
+  @@index([buyerId, projectId])
+  @@index([sessionId])
+  @@index([questionnaireId])
+  @@index([questionKey])
+  @@index([answeredAt])
+}
+
+model PlannerAnalytics {
+  id                String   @id @default(cuid())
+  projectId         String
+  questionnaireId   String
+  questionKey       String
+  eventType         String   // started, answered, skipped, completed, dropped, resumed
+  branchKey         String?
+  timeSpentMs       Int?
+  answerChanged     Boolean  @default(false)
+  completionRate    Float?   // aggregate
+  dropOffRate       Float?   // aggregate
+  dateBucket        DateTime // day bucket for aggregation
+  anonymousId       String?  // hashed/anonymous identifier
+  createdAt         DateTime @default(now())
+
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  questionnaire     Questionnaire @relation(fields: [questionnaireId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([questionnaireId])
+  @@index([questionKey])
+  @@index([eventType])
+  @@index([dateBucket])
+  @@index([anonymousId])
+}
+
+model Rule {
+  id                String   @id @default(cuid())
+  ruleSetId         String
+  key               String   // unique key within ruleset
+  name              String
+  version           Int      @default(1)
+  enabled           Boolean  @default(true)
+  priority          Int      @default(0)      // execution order
+  severity          String   @default("normal") // critical, high, normal, low
+  category          String   // household, lifestyle, financial, design, safety, investment, behaviour
+  description       String?
+  conditions        Json     // RuleCondition[]
+  effects           Json     // RuleEffect[]
+  overrides         Json?    // { ruleKey: "RULE_X", reason: "..." }
+  metadata          Json?    // additional config
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  ruleSet           RuleSet  @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+  conflicts         RuleConflict[] @relation("WinningRule")
+  lostConflicts     RuleConflict[] @relation("LosingRule")
+
+  @@index([ruleSetId])
+  @@index([key])
+  @@index([category])
+  @@index([enabled])
+  @@index([priority])
+  @@unique([ruleSetId, key, version])
+}
+
+model RuleSet {
+  id                String   @id @default(cuid())
+  developerId       String?
+  projectId         String?
+  name              String
+  version           String   @default("1.0")
+  description       String?
+  isActive          Boolean  @default(true)
+  isDefault         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  developer         Developer? @relation(fields: [developerId], references: [id], onDelete: SetNull)
+  project           Project?   @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  rules             Rule[]
+  conflicts         RuleConflict[]
+
+  @@index([developerId])
+  @@index([projectId])
+  @@index([isActive])
+  @@unique([developerId, projectId, name, version])
+}
+
+model RuleConflict {
+  id                String   @id @default(cuid())
+  ruleSetId         String
+  winningRuleId     String
+  losingRuleId      String
+  conflictType      String   // attribute, priority, constraint
+  conflictKey       String   // the key that conflicted
+  winningValue      Json
+  losingValue       Json
+  resolutionReason  String
+  resolvedAt        DateTime @default(now())
+  snapshotId        String?  // link to DecisionSnapshot if from evaluation
+
+  ruleSet           RuleSet  @relation(fields: [ruleSetId], references: [id], onDelete: Cascade)
+  winningRule       Rule     @relation("WinningRule", fields: [winningRuleId], references: [id], onDelete: Cascade)
+  losingRule        Rule     @relation("LosingRule", fields: [losingRuleId], references: [id], onDelete: Cascade)
+
+  @@index([ruleSetId])
+  @@index([winningRuleId])
+  @@index([losingRuleId])
+  @@index([conflictType])
+  @@index([resolvedAt])
+}
+
+model KnowledgeBase {
+  id            String   @id @default(cuid())
+  projectId     String
+  title         String
+  content       String
+  category      String
+  tags          String[]
+  isPublished   Boolean  @default(true)
+  priority      Int      @default(0)
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  project       Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([category])
+  @@index([isPublished])
+}
+
+model Furniture {
+  id            String   @id @default(cuid())
+  projectId     String
+  name          String
+  category      String
+  style         String
+  modelUrl      String
+  thumbnailUrl  String
+  dimensions    Json
+  price         Float?
+  metadata      Json?
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([category])
+  @@index([style])
+  @@index([isActive])
+}
+
+model Notification {
+  id            String   @id @default(cuid())
+  projectId     String
+  buyerId       String?
+  type          String
+  channel       String
+  subject       String?
+  content       String
+  status        String   @default("pending")
+  metadata      Json?
+  sentAt        DateTime?
+  createdAt     DateTime @default(now())
+
+  @@index([projectId])
+  @@index([buyerId])
+  @@index([status])
+  @@index([type])
+}
+
+model WhatsAppTemplate {
+  id            String   @id @default(cuid())
+  projectId     String
+  name          String
+  category      String
+  language      String   @default("en")
+  header        String?
+  body          String
+  footer        String?
+  buttons       Json?
+  variables     Json?
+  status        String   @default("pending")
+  templateId    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([projectId, name])
+  @@index([projectId])
+  @@index([status])
+}
+
+model StorageObject {
+  id            String   @id @default(cuid())
+  projectId     String
+  bucket        String
+  key           String
+  originalName  String
+  mimeType      String
+  size          Int
+  url           String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+
+  @@index([projectId])
+  @@index([bucket, key])
+  @@index([originalName])
+}
+
+model User {
+  id            String   @id @default(cuid())
+  email         String   @unique
+  passwordHash  String
+  name          String
+  role          String   @default("admin")
+  isActive      Boolean  @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([email])
+  @@index([isActive])
+}
