@@ -1,0 +1,248 @@
+# CEREX PLATFORM – PROJECT BRAIN
+
+## Vision
+
+Cerex Platform is a production-grade multi-tenant PropTech SaaS platform designed to improve real estate lead conversion through buyer personalization, AI-assisted apartment visualization, behavioral analytics, and sales intelligence.
+
+The goal is **not** to build another real estate website.
+
+The goal is to build an operating system for real estate developers.
+
+Every developer uses the same backend.
+
+Every project has its own branding, apartments, AI knowledge, furniture library, analytics and CRM data.
+
+---
+
+## Core Philosophy
+
+The buyer should feel like they are designing **their future home**, not browsing a brochure.
+
+The developer should receive **buyer intelligence**, not just leads.
+
+The sales team should know what matters to the buyer before making the first call.
+
+---
+
+## High-Level Buyer Journey
+
+Meta/Google Advertisement
+
+↓
+
+Project Website
+
+↓
+
+AI Planner
+
+↓
+
+Buyer DNA Creation
+
+↓
+
+3D Apartment Experience
+
+↓
+
+Furniture Personalization
+
+↓
+
+AI Recommendations
+
+↓
+
+Summary
+
+↓
+
+Site Visit
+
+↓
+
+CRM
+
+---
+
+## Platform Architecture
+
+Single Backend
+
+↓
+
+Multiple Developers
+
+↓
+
+Multiple Projects
+
+↓
+
+Multiple Buyers
+
+Future products:
+
+* CRM
+* Mobile App
+* Broker Portal
+* Admin Portal
+
+All must use the same backend.
+
+---
+
+## Technology
+
+Frontend
+
+React
+
+TanStack Start
+
+TanStack Router
+
+TypeScript
+
+Shadcn UI
+
+Tailwind
+
+React Query
+
+Zustand
+
+Three.js (future)
+
+React Three Fiber (future)
+
+Backend
+
+NestJS
+
+Node.js
+
+PostgreSQL
+
+Prisma
+
+Redis
+
+BullMQ
+
+Swagger
+
+Cloudflare R2
+
+OpenAI
+
+---
+
+## Product Modules
+
+Landing
+
+Planner
+
+Experience
+
+Summary
+
+Success
+
+CRM
+
+Knowledge Base
+
+Furniture Library
+
+Viewer
+
+Analytics
+
+Lead Engine
+
+Buyer DNA
+
+AI Engine
+
+Workflow Engine
+
+WhatsApp Automation
+
+---
+
+## AI Philosophy
+
+AI never writes directly to the database.
+
+AI never decides business rules.
+
+AI only returns structured JSON.
+
+Business logic belongs in backend services.
+
+---
+
+## Viewer Philosophy
+
+The viewer renders apartment models.
+
+AI does not generate geometry.
+
+AI recommends furniture.
+
+The backend validates placement.
+
+The frontend renders the final layout.
+
+---
+
+## Multi-Tenant Rules
+
+One backend.
+
+One database.
+
+Unlimited developers.
+
+Unlimited projects.
+
+Every request belongs to exactly one project.
+
+Everything is project-aware.
+
+No project-specific code.
+
+---
+
+## Engineering Rules
+
+Controllers stay thin.
+
+Business logic belongs in services.
+
+No duplicate code.
+
+No hardcoded developer data.
+
+No direct OpenAI calls from controllers.
+
+Everything uses DTOs.
+
+Everything is strongly typed.
+
+Events are immutable.
+
+Everything is scalable.
+
+Everything is production-ready.
+
+Never break existing APIs without approval.
+
+---
+
+## Long-Term Goal
+
+Cerex should become the operating system for residential real estate sales by combining buyer personalization, AI recommendations, 3D visualization, analytics, CRM, and marketing automation into one unified platform.

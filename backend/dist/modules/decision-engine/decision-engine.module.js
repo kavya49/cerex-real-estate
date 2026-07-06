@@ -1,0 +1,35 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DecisionEngineModule = void 0;
+const common_1 = require("@nestjs/common");
+const decision_engine_controller_1 = require("./decision-engine.controller");
+const decision_engine_service_1 = require("./decision-engine.service");
+const fact_builder_service_1 = require("./fact-builder/fact-builder.service");
+const rule_engine_service_1 = require("./rule-engine/rule-engine.service");
+const attribute_builder_service_1 = require("./attribute-builder/attribute-builder.service");
+const priority_engine_service_1 = require("./priority-engine/priority-engine.service");
+const constraint_engine_service_1 = require("./constraint-engine/constraint-engine.service");
+let DecisionEngineModule = class DecisionEngineModule {
+};
+exports.DecisionEngineModule = DecisionEngineModule;
+exports.DecisionEngineModule = DecisionEngineModule = __decorate([
+    (0, common_1.Module)({
+        controllers: [decision_engine_controller_1.DecisionEngineController],
+        providers: [
+            decision_engine_service_1.DecisionEngineService,
+            fact_builder_service_1.FactBuilderService,
+            rule_engine_service_1.RuleEngineService,
+            attribute_builder_service_1.AttributeBuilderService,
+            priority_engine_service_1.PriorityEngineService,
+            constraint_engine_service_1.ConstraintEngineService,
+        ],
+        exports: [decision_engine_service_1.DecisionEngineService],
+    })
+], DecisionEngineModule);
+//# sourceMappingURL=decision-engine.module.js.map

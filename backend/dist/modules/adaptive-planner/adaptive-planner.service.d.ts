@@ -1,0 +1,30 @@
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { PrismaService } from "../../prisma/prisma.service";
+import { DecisionEngineService } from "../decision-engine/decision-engine.service";
+import { QuestionnaireDto, PlannerStateDto, PlannerPreviewDto, StartPlannerRequestDto, SubmitAnswerRequestDto } from "./dto/adaptive-planner.dto";
+export declare class AdaptivePlannerService {
+    private prisma;
+    private eventEmitter;
+    private decisionEngine;
+    private readonly logger;
+    private readonly defaultQuestionnaire;
+    constructor(prisma: PrismaService, eventEmitter: EventEmitter2, decisionEngine: DecisionEngineService);
+    getQuestionnaire(questionnaireId?: string): Promise<QuestionnaireDto>;
+    startPlanner(request: StartPlannerRequestDto, projectId: string, buyerId: string, sessionId?: string): Promise<PlannerStateDto>;
+    submitAnswer(projectId: string, buyerId: string, sessionId: string | undefined, request: SubmitAnswerRequestDto): Promise<PlannerStateDto>;
+    resumePlanner(projectId: string, buyerId: string, sessionId: string): Promise<PlannerStateDto>;
+    generatePreview(state: PlannerStateDto): PlannerPreviewDto | null;
+    private getNextQuestion;
+    private shouldAskQuestion;
+    private getPendingQuestions;
+    private calculateProgress;
+    private isMandatoryComplete;
+    private isComplete;
+    private buildBranchPath;
+    private isAnswerChanged;
+    private evaluateDecision;
+    private getHouseholdSize;
+    private parseTimeline;
+    private mapToQuestionnaireDto;
+    private logAnalytics;
+}
